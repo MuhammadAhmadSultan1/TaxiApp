@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Distance and Cost Calculator</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmPIAbf-XdZ5U0fMtcLJwHevLMk3hnORk"></script>
+    <script>
+        var map;
+        var geocoder = new google.maps.Geocoder();
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 0, lng: 0},
+                zoom: 2,
+                mapTypeControl: false,
+            });
+
+            var originInput = document.getElementById('origin') ;
+            var destinationInput = document.getElementById('destination');
+
+          //  var originAutocomplete = new google.maps.places.Autocomplete(originInput);
+           // var destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
+
+          //  originAutocomplete.addListener('place_changed', calculateDistance);
+          //  destinationAutocomplete.addListener('place_changed', calculateDistance);
+        }
+
+        function calculateDistance() {
+            var origin = document.getElementById('origin').value;
+            var destination = document.getElementById('destination').value;
+
+            geocoder.geocode({ 'address': origin }, function (results, status) {
+                if (status === 'OK') {
+                    var originLatLng = results[0].geometry.location;
+                    geocoder.geocode({ 'address': destination }, function (results, status) {
+                        if (status === 'OK') {
+                            var destinationLatLng = results[0].geometry.location;
+                            var distance = google.maps.geometry.spherical.computeDistanceBetween(originLatLng, destinationLatLng);
+                            var distanceInKilometers = distance / 1000;
+                            var numberOfPersons = parseInt(document.getElementById('persons').value);
+                            var cost = distanceInKilometers * 10.5 * numberOfPersons;
+
+                            document.getElementById('distance').innerHTML = "Distance: " + distanceInKilometers.toFixed(2) + " km";
+                            document.getElementById('cost').innerHTML = "Cost: $" + cost.toFixed(2);
+                        } else {
+                            alert('Geocode was not successful for the following reason: ' + status);
+                        }
+                    });
+                } else {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                }
+            });
+        }
+
+        // $(function() {
+        //     $("#datepicker").datepicker();
+        //     $("#timepicker").timepicker({ 'scrollDefault': 'now' });
+        // });
+        console.log("calculateDistance");
+    </script>
+</head>
+<body onload="initMap()">
+    <h1>Distance and Cost Calculator</h1>
+    <form>
+        <label for="origin">Pickup Location:</label>
+        <input type="text" id="origin" placeholder="Enter pickup location" required><br><br>
+
+        <label for="destination">Drop-off Location:</label>
+        <input type="text" id="destination" placeholder="Enter drop-off location" required><br><br>
+
+        <label for="datepicker">Date:</label>
+        <input type="text" id="datepicker" placeholder="Select date" required><br><br>
+
+        <label for="timepicker">Time:</label>
+        <input type="text" id="timepicker" placeholder="Select time" required><br><br>
+
+        <label for="persons">Number of Persons:</label>
+        <input type="number" id="persons" placeholder="Enter number of persons" required><br><br>
+
+        <div id="map" style="height: 300px;"></div><br><br>
+
+        <div id="distance"></div><br><br>
+
+        <div id="cost"></div><br><br>
+
+        <button type="button" onclick="calculateDistance()">Calculate Distance and Cost</button>
+    </form>
+    
+</body>
+</html>
